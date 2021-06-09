@@ -53,9 +53,11 @@ namespace RDI.Controllers
                 if (CardContext.FindCard(validateRequestModel.CardId))
                     return NotFound();
                 var card = CardContext.GetCard(validateRequestModel.CardId);
+                if (DateTime.UtcNow.Subtract(card.CreatedDate).TotalMinutes > 30)
+                    return BadRequest();
                 if (!card.CustomerId.Equals(validateRequestModel.CustomerId))
                     return BadRequest();
-                if (!card.TokenId.Equals(TokenGenerator.GenerateToken(card.CardNumber, card.CVV)))
+                if (!validateRequestModel.TokenId.Equals(TokenGenerator.GenerateToken(card.CardNumber, card.CVV)))
                     return BadRequest();
                 return Ok(true);
             }
